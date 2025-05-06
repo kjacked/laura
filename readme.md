@@ -1,7 +1,7 @@
 
 
 <div style="text-align: center;">
-    <img width="100%" src="[/path/to/image.png](https://github.com/user-attachments/assets/6b6167ce-8e01-4f23-8ab8-8f8d583db08b)">
+    <https://github.com/user-attachments/assets/6b6167ce-8e01-4f23-8ab8-8f8d583db08b>
 </div>
 
 # Laura AI Cold-Calling Agent — Technical Specification
