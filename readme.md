@@ -100,7 +100,111 @@ Laura is an AI-powered outbound calling agent designed to automate sales or outr
 ---
 
 ## Outstanding Roadmap Items
+Implement Lead List Management
 
+✅ Decide on a lead source: Airtable
+
+✅ Implement a loader in main.py (and leads.py) to fetch the next lead to call
+
+✅ Mark leads as "called" or "in progress" to avoid duplicates
+
+⬜ Optionally, support retry logic for failed calls (e.g., no answer) — Not yet implemented
+
+Handle Webhooks for Call Status and Summaries
+
+✅ Implement HTTP endpoints (/vapi-webhook, /twilio-status) using Flask in main.py
+
+✅ Parse incoming webhook data to update call status, log outcomes, and store call recordings or transcripts
+
+✅ Secure webhook endpoints (with a secret token)
+
+Enhance Error Handling and Resilience
+
+⬜ Add retries with exponential backoff for VAPI and Airtable API calls
+
+⬜ Log all exceptions and errors with enough detail for debugging
+
+⬜ Implement circuit breaker logic if repeated failures occur
+
+Parameterize and Secure Configuration
+
+⬜ Support loading config from .env files in development (using python-dotenv)
+
+⬜ Document all required environment variables in a README.md or .env.example
+
+⬜ For Kubernetes, ensure all secrets are referenced from K8s Secrets, not hardcoded
+
+Improve LLM Prompt and Assistant Customization
+
+⬜ Move prompt templates to a separate file or allow them to be passed as environment variables
+
+⬜ Support dynamic prompt variables (e.g., customer name, product)
+
+⬜ Allow voice selection via config
+
+Testing and Mocking
+
+⬜ Implement unit tests for all modules (vapi_client, logger, config validation, lead loader)
+
+⬜ Use requests-mock or similar to mock external API calls in tests
+
+⬜ Add integration tests for the full call flow (mocking VAPI and Airtable)
+
+⬜ Set up a CI pipeline (e.g., GitHub Actions) to run tests on every commit
+
+Build a Minimal UI/Dashboard (Optional but Recommended)
+
+⬜ Implement a simple Flask or FastAPI web dashboard
+
+⬜ Display recent calls, agent status, and allow pausing/resuming agents
+
+⬜ Optionally, integrate with Kubernetes to scale deployments from the UI
+
+Productionize Docker and Kubernetes Manifests
+
+⬜ Finalize the Dockerfile (multi-stage build, non-root user, etc.)
+
+⬜ Parameterize k8s/deployment.yaml for different agents/campaigns
+
+⬜ Add resource requests/limits and health/readiness probes
+
+⬜ Create and document K8s Secrets for all sensitive config
+
+Monitoring, Logging, and Alerting
+
+⬜ Integrate with a log aggregator (e.g., ELK, CloudWatch, GCP Logging)
+
+⬜ Expose Prometheus metrics (calls made, errors, etc.) if possible
+
+⬜ Set up alerts for high error rates, pod restarts, or API failures
+
+Compliance and Consent Safeguards
+
+⬜ Add logic to check that each lead has documented consent before calling
+
+⬜ Ensure the agent’s first message includes required disclosures (recording, opt-out)
+
+⬜ Log consent status and opt-outs in Airtable or your CRM
+
+Documentation and Developer Onboarding
+
+⬜ Write a comprehensive README.md covering setup, config, deployment, and troubleshooting
+
+⬜ Document the API endpoints, environment variables, and expected webhook payloads
+
+⬜ Provide example manifests and test data
+
+(Optional) Integrate Lindy or Other Summarization/Automation
+
+⬜ Add code or Make.com/Zapier integration to send call recordings/transcripts to Lindy
+
+⬜ Store Lindy’s summaries and next actions in Airtable or notify sales reps
+
+Legend:
+
+✅ Complete
+
+⬜ Still needs to be completed
 ### Error Handling & Resilience
 - Add retries with exponential backoff for all external API calls (Airtable, VAPI).
 - Log all exceptions with stack traces.
@@ -172,4 +276,4 @@ Laura is an AI-powered outbound calling agent designed to automate sales or outr
 
 ## Contact
 
-For questions or contributions, please contact the project maintainer.
+For questions or contributions, please contact @kjacked.
