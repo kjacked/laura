@@ -1,0 +1,67 @@
+# deployment.yaml
+# Kubernetes Deployment manifest for Laura AI agent
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: laura-agent
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: laura-agent
+  template:
+    metadata:
+      labels:
+        app: laura-agent
+    spec:
+      containers:
+      - name: laura
+        image: laura-caller:latest
+        env:
+        - name: VAPI_API_TOKEN
+          valueFrom:
+            secretKeyRef:
+              name: laura-secrets
+              key: vapiApiToken
+        - name: VAPI_PHONE_ID
+          valueFrom:
+            secretKeyRef:
+              name: laura-secrets
+              key: vapiPhoneId
+        - name: OPENAI_API_KEY
+          valueFrom:
+            secretKeyRef:
+              name: laura-secrets
+              key: openaiKey
+        - name: AIRTABLE_API_KEY
+          valueFrom:
+            secretKeyRef:
+              name: laura-secrets
+              key: airtableKey
+        - name: AIRTABLE_BASE_ID
+          value: "appXXXXXXXX"
+        - name: AIRTABLE_TABLE_NAME
+          value: "Calls"
+        - name: AGENT_NAME
+          value: "Laura"
+        - name: AGENT_VOICE
+          value: "jennifer-playht"
+        resources:
+          limits:
+            cpu: "0.5"
+            memory: "1Gi"
+        ports:
+        - containerPort: 5000
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 5000
+          initialDelaySeconds: 30
+          periodSeconds: 60
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 5000
+          initialDelaySeconds: 5
+          periodSeconds: 30

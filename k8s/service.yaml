@@ -1,0 +1,15 @@
+# service.yaml
+# Kubernetes Service manifest for Laura AI agent (optional, for UI/health checks)
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: laura-agent-service
+spec:
+  selector:
+    app: laura-agent
+  ports:
+    - protocol: TCP
+      port: 5000
+      targetPort: 5000
+  type: ClusterIP
