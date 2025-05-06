@@ -1,5 +1,6 @@
 
-![leadaurua](https://github.com/user-attachments/assets/54877d37-4e8d-43b4-a015-a47b32a30f80)
+![LAURATRANSPARENT](https://github.com/user-attachments/assets/6b6167ce-8e01-4f23-8ab8-8f8d583db08b)
+
 
 # Laura AI Cold-Calling Agent — Technical Specification
 
