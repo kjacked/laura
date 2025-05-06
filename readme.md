@@ -4,7 +4,7 @@
   <img
     src="https://github.com/user-attachments/assets/6b6167ce-8e01-4f23-8ab8-8f8d583db08b"
     alt="My Logo"
-    width="200"    <!-- optional: control the display size -->
+    width="1000"    <!-- optional: control the display size -->
   />
 </p>
 
