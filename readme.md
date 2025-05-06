@@ -1,8 +1,7 @@
 
-
 <p align="center">
   <img
-    src="https://github.com/user-attachments/assets/6b6167ce-8e01-4f23-8ab8-8f8d583db08b"
+    src="https://github.com/user-attachments/assets/7e550d78-2c6f-40e9-afb8-219fb1d3e89e"
     alt="My Logo"
     width="500"    <!-- optional: control the display size -->
   />
