@@ -1,6 +1,8 @@
 # vapi_client.py
 # Handles interaction with VAPI (Voice API) for call initiation and management
 
+import logging
+from app.leads import retry_with_backoff
 import requests
 
 class VAPIClient:
@@ -8,6 +10,7 @@ class VAPIClient:
         self.api_token = api_token
         self.base_url = "https://api.vapi.ai"
 
+    @retry_with_backoff(max_attempts=3, initial_delay=1, backoff_factor=2)
     def initiate_call(self, phone_id, customer_number, assistant_payload):
         """
         Initiate an outbound call via VAPI.
@@ -26,11 +29,11 @@ class VAPIClient:
             resp = requests.post(url, json=payload, headers=headers, timeout=15)
             if resp.status_code == 201:
                 data = resp.json()
-                print(f"Call initiated successfully. Call ID: {data.get('callId')}")
+                logging.info(f"Call initiated successfully. Call ID: {data.get('callId')}")
                 return data
             else:
-                print(f"Failed to initiate call: {resp.status_code} - {resp.text}")
+                logging.error(f"Failed to initiate call: {resp.status_code} - {resp.text}")
                 return None
         except Exception as e:
-            print(f"Exception during VAPI call initiation: {e}")
+            logging.exception(f"Exception during VAPI call initiation: {e}")
             return None

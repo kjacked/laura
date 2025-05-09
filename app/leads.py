@@ -1,3 +1,27 @@
+import time
+import logging
+from functools import wraps
+
+def retry_with_backoff(max_attempts=3, initial_delay=1, backoff_factor=2):
+    """
+    Decorator for retrying a function with exponential backoff.
+    Logs exceptions and raises after max_attempts.
+    """
+    def decorator(func):
+        @wraps(func)
+        def wrapper(*args, **kwargs):
+            delay = initial_delay
+            for attempt in range(1, max_attempts + 1):
+                try:
+                    return func(*args, **kwargs)
+                except Exception as e:
+                    logging.exception(f"Attempt {attempt} failed: {e}")
+                    if attempt == max_attempts:
+                        raise
+                    time.sleep(delay)
+                    delay *= backoff_factor
+        return wrapper
+    return decorator
 # leads.py
 # Handles fetching and updating leads from Airtable
 
@@ -15,6 +39,7 @@ class LeadLoader:
             "Content-Type": "application/json"
         }
 
+    @retry_with_backoff(max_attempts=3, initial_delay=1, backoff_factor=2)
     def get_next_lead(self):
         """
         Fetch the next lead that is not 'called' or 'in progress'.
@@ -34,6 +59,7 @@ class LeadLoader:
         lead["id"] = record["id"]
         return lead
 
+    @retry_with_backoff(max_attempts=3, initial_delay=1, backoff_factor=2)
     def mark_lead_status(self, record_id, status):
         """
         Update the status of a lead by record ID.

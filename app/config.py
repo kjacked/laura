@@ -1,6 +1,10 @@
 # config.py
 # Loads configuration from environment variables
 
+from dotenv import load_dotenv
+
+# Load environment variables from a .env file if present (for local development)
+load_dotenv()
 import os
 
 class Config:

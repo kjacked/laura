@@ -7,7 +7,57 @@ from app.logger import Logger
 from flask import Flask
 
 import sys
+import yaml
 
+# Load prompts from prompts.yaml
+def load_prompts():
+    with open("prompts.yaml", "r") as f:
+        return yaml.safe_load(f)
+
+# --- Deepgram Transcription Endpoint ---
+from deepgram import Deepgram
+import asyncio
+
+@app.route("/transcribe", methods=["POST"])
+def transcribe():
+    """
+    Accepts a JSON payload with either:
+    - 'url': a public audio file URL
+    OR
+    - a file upload (multipart/form-data, 'file' field)
+    Returns: JSON with transcription text or error.
+    """
+    api_key = os.environ.get("DEEPGRAM_API_KEY", getattr(Config, "DEEPGRAM_API_KEY", None))
+    if not api_key:
+        return jsonify({"error": "Deepgram API key not configured"}), 500
+
+    dg_client = Deepgram(api_key)
+
+    # Handle file upload
+    if "file" in request.files:
+        audio_file = request.files["file"]
+        source = {"buffer": audio_file.read(), "mimetype": audio_file.mimetype}
+    else:
+        # Handle URL in JSON
+        data = request.get_json(force=True)
+        if not data or "url" not in data:
+            return jsonify({"error": "No audio file or URL provided"}), 400
+        source = {"url": data["url"]}
+
+    async def run_transcription():
+        try:
+            response = await dg_client.transcription.prerecorded(source, {"punctuate": True, "language": "en"})
+            transcript = response["results"]["channels"][0]["alternatives"][0]["transcript"]
+            return transcript
+        except Exception as e:
+            return str(e)
+
+    loop = asyncio.new_event_loop()
+    asyncio.set_event_loop(loop)
+    transcript = loop.run_until_complete(run_transcription())
+    loop.close()
+
+    return jsonify({"transcript": transcript})
 # Health check endpoint for Kubernetes
 app = Flask(__name__)
 
@@ -78,18 +128,16 @@ def main():
         print(f"Config error: {e}")
         sys.exit(1)
 
-    # Prepare assistant payload (LLM prompt)
-    SYSTEM_PROMPT = (
-        f"You are {Config.AGENT_NAME}, an AI sales assistant. "
-        "You are calling potential customers. "
-        "Your style is professional, friendly, and concise. "
-        "Introduce yourself and the company, explain why you're calling, and engage the customer. "
-        "If the customer is not interested, thank them and end. "
-        "Keep each response under 2 sentences."
-    )
-    FIRST_MESSAGE = (
-        f"Hello, this is {Config.AGENT_NAME}. How are you today?"
-    )
+    # Load and render prompts
+    prompts = load_prompts()
+    # Example dynamic variables; expand as needed
+    agent_name = Config.AGENT_NAME
+    company_name = os.environ.get("COMPANY_NAME", "Your Company")
+    # You can add more dynamic variables (e.g., customer_name) as needed
+
+    SYSTEM_PROMPT = prompts["system_prompt"].format(agent_name=agent_name, company_name=company_name)
+    FIRST_MESSAGE = prompts["first_message"].format(agent_name=agent_name, company_name=company_name)
+
     assistant_payload = {
         "firstMessage": FIRST_MESSAGE,
         "model": {

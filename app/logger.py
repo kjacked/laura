@@ -1,6 +1,8 @@
 # logger.py
 # Handles logging call results to Airtable
 
+import logging
+from app.leads import retry_with_backoff
 import requests
 from datetime import datetime
 from app.config import Config
@@ -11,13 +13,14 @@ class Logger:
         self.base_id = base_id
         self.table_name = table_name
 
+    @retry_with_backoff(max_attempts=3, initial_delay=1, backoff_factor=2)
     def log_call(self, result):
         """
         Log the call result to Airtable.
         result: dict with keys like customer_number, status, summary, agent_name, recording_url, next_action
         """
         if not self.airtable_api_key or not self.base_id:
-            print("Airtable logging is disabled (missing config).")
+            logging.error("Airtable logging is disabled (missing config).")
             return
 
         endpoint = f"https://api.airtable.com/v0/{self.base_id}/{self.table_name}"
@@ -41,8 +44,8 @@ class Logger:
         try:
             resp = requests.post(endpoint, json=data, headers=headers, timeout=10)
             if resp.status_code in (200, 201):
-                print("Logged call to Airtable successfully.")
+                logging.info("Logged call to Airtable successfully.")
             else:
-                print(f"Failed to log call: {resp.status_code} - {resp.text}")
+                logging.error(f"Failed to log call: {resp.status_code} - {resp.text}")
         except Exception as e:
-            print(f"Exception during Airtable logging: {e}")
+            logging.exception(f"Exception during Airtable logging: {e}")
